@@ -1,6 +1,7 @@
 package com.example.kangning.mvvm;
 
 import android.content.Context;
+import android.graphics.Interpolator;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -21,6 +22,7 @@ public class ScrollLinear extends LinearLayout {
     private LinearLayout right;
 
     private Scroller scroller;
+    private Interpolator interpolator;
     private float startX;
 
     public ScrollLinear(Context context, AttributeSet attrs) {
@@ -30,7 +32,9 @@ public class ScrollLinear extends LinearLayout {
     public ScrollLinear(Context context) {
         super(context);
         initView(context);
+        //interpolator = new
         scroller = new Scroller(context);
+
     }
 
     private void initView(Context context) {
@@ -103,13 +107,13 @@ public class ScrollLinear extends LinearLayout {
 
                 Log.d("...", "scrollX" + scrollX + "right.getMeasuredWidth()" + right.getWidth());
 
-                if (scrollX > right.getWidth() / 2 && scrollX < right.getWidth()) {
+                if (scrollX > right.getWidth() / 3 && scrollX < right.getWidth()) {
                     slipToRight(scrollX);
-                } else if (scrollX < -left.getWidth() / 2 && scrollX > -left.getWidth()) {
+                } else if (scrollX < -left.getWidth() / 3 && scrollX > -left.getWidth()) {
                     slipToLeft(scrollX);
-                } else if (scrollX > 0 && scrollX <= right.getWidth() / 2) {
+                } else if (scrollX > 0 && scrollX <= right.getWidth() / 3) {
                     slipToMid(1, scrollX);
-                } else if (scrollX < 0 && scrollX >= -left.getWidth() / 2) {
+                } else if (scrollX < 0 && scrollX >= -left.getWidth() / 3) {
                     slipToMid(2, scrollX);
                 }
                 break;
@@ -121,20 +125,40 @@ public class ScrollLinear extends LinearLayout {
 
     private void slipToLeft(int scrollX) {
         Log.d("...", "slipToLeft");
-        scroller.startScroll(scrollX, 0, -left.getWidth(), 0, 1000);
+        float ratio = (float)(-left.getWidth()-scrollX) / (float) (-left.getWidth());
+        scroller.startScroll(scrollX, 0, -left.getWidth()-scrollX, 0, (int)(1000 * ratio));
         invalidate();
     }
 
 
     private void slipToRight(int scrollX) {
         Log.d("...", "slipToRight");
+        float ratio = (float)(right.getWidth()-scrollX) / (float) (right.getWidth());
+        scroller.startScroll(scrollX, 0, right.getWidth()-scrollX, 0, (int)(1000 * ratio));
+        invalidate();
     }
 
-    private void slipToMid(int type, int scrollx) {
+    private void slipToMid(int type, int scrollX) {
         if (type == 1) {
             Log.d("...", "slipToMid1");
+            float ratio = (float)(scrollX) / (float) (right.getWidth());
+            scroller.startScroll(scrollX, 0, -scrollX, 0, (int)(1000 * ratio));
+            invalidate();
         } else if (type == 2) {
             Log.d("...", "slipToMid2");
+            float ratio = (float)(-scrollX) / (float) (left.getWidth());
+            scroller.startScroll(scrollX, 0, -scrollX, 0, (int)(1000 * ratio));
+            invalidate();
         }
     }
+
+    @Override
+    public void computeScroll() {
+        super.computeScroll();
+        if (scroller.computeScrollOffset()){
+            scrollTo(scroller.getCurrX(),0);
+            invalidate();
+        }
+    }
+
 }
