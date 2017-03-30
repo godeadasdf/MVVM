@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.Scroller;
@@ -161,4 +162,7 @@ public class ScrollLinear extends LinearLayout {
         }
     }
 
+    public void addViewToMiddle(View view){
+        mid.addView(view);
+    }
 }
